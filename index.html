@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<!-- Google Ads etiketi buraya eklenecek -->
+<title>Kurt 3D Görselleştirme</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Mimari planınızdan dış cephe, iç mekân 3D görselleri ve drone animasyonu. Müteahhit ve emlak ofisleri için, Türkiye geneli online.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: ozalit pafta — açık beton zemin, ozalit mavisi çizgiler, antet (title block) iletişim bölümü */
+:root{
+  --bg:#f2f3f1; --paper:#ffffff; --ink:#16191d; --muted:#545b63; --line:#cfd4d6;
+  --accent:#1f3f8f; --accent-ink:#ffffff; --accent-soft:#e3e9f6;
+  --f-display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",Roboto,Arial,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --wrap:1180px;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#101318; --paper:#171b21; --ink:#e9ecef; --muted:#a3abb4; --line:#2c333c;
+  --accent:#8fb0ff; --accent-ink:#0d1526; --accent-soft:#1b2640; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#101318; --paper:#171b21; --ink:#e9ecef; --muted:#a3abb4; --line:#2c333c;
+  --accent:#8fb0ff; --accent-ink:#0d1526; --accent-soft:#1b2640; color-scheme:dark}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--f-body);-webkit-font-smoothing:antialiased}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3{font-family:var(--f-display);line-height:1.08;text-wrap:balance;margin:0;letter-spacing:-.01em}
+h2{font-size:clamp(1.9rem,3.6vw,2.7rem);font-weight:800}
+h3{font-size:1.2rem;font-weight:700}
+p{margin:0}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px;border-radius:4px}
+.label{font:500 .78rem/1.3 var(--f-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--accent)}
+.muted{color:var(--muted)}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;gap:.55em;min-height:52px;padding:.8em 1.35em;border-radius:6px;font:600 1.02rem/1 var(--f-body);text-decoration:none;border:2px solid var(--accent);transition:transform .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{background:transparent;color:var(--accent)}
+.btn svg{width:20px;height:20px;flex:none}
+
+/* Header */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+header.top .wrap{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:12px}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;font:800 1.15rem/1 var(--f-display);letter-spacing:.02em}
+.brand-mark{width:30px;height:30px;border:2px solid var(--accent);display:grid;place-items:center;font:500 .7rem/1 var(--f-mono);color:var(--accent)}
+.top nav{display:flex;gap:22px;align-items:center}
+.top nav a.link{text-decoration:none;color:var(--muted);font-weight:500}
+.top nav a.link:hover{color:var(--ink)}
+.top .btn{min-height:44px;padding:.6em 1em;font-size:.95rem}
+@media (max-width:760px){.top nav a.link{display:none}}
+
+/* Hero */
+.hero{padding-block:40px 56px}
+.hero-grid{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:44px;align-items:center}
+.hero h1{font-size:clamp(2.4rem,5.4vw,4.3rem);font-weight:800;margin-top:14px}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .lead{font-size:1.15rem;margin-top:18px;max-width:34ch;color:var(--muted)}
+.hero .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.hero .note{margin-top:20px;font:400 .85rem/1.5 var(--f-mono);color:var(--muted)}
+.frame{position:relative;border:1px solid var(--line);background:var(--paper);padding:10px}
+.frame video,.frame img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;background:var(--line)}
+/* ölçü çizgisi */
+.dim{display:flex;align-items:center;gap:10px;margin-top:10px;font:400 .75rem/1 var(--f-mono);color:var(--muted)}
+.dim::before,.dim::after{content:"";flex:1;height:1px;background:var(--muted);opacity:.6}
+.dim span{white-space:nowrap}
+@media (max-width:880px){.hero-grid{grid-template-columns:minmax(0,1fr)}.hero{padding-block:24px 40px}}
+
+/* Sections */
+section.block{padding-block:64px;border-top:1px solid var(--line)}
+.sec-head{display:grid;gap:12px;max-width:62ch;margin-bottom:36px}
+
+/* Audience */
+.aud{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:28px}
+.aud div{border-top:3px solid var(--accent);padding-top:16px;display:grid;gap:8px}
+@media (max-width:760px){.aud{grid-template-columns:minmax(0,1fr)}}
+
+/* Gallery */
+.gal{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:14px}
+.gal figure{margin:0;display:grid;gap:8px;min-width:0}
+.gal img{width:100%;height:100%;aspect-ratio:16/10;object-fit:cover;display:block;background:var(--line)}
+.gal figcaption{font:400 .8rem/1.3 var(--f-mono);color:var(--muted)}
+.g-wide{grid-column:span 3}.g-third{grid-column:span 2}
+@media (max-width:760px){.gal{grid-template-columns:repeat(2,minmax(0,1fr))}.g-wide{grid-column:span 2}.g-third{grid-column:span 1}}
+.tour{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:36px;align-items:center;margin-top:48px}
+.tour ul{margin:16px 0 0;padding-left:1.1em;display:grid;gap:6px}
+@media (max-width:880px){.tour{grid-template-columns:minmax(0,1fr)}}
+
+/* Services */
+.svc{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0;border:1px solid var(--line);background:var(--paper)}
+.svc div{padding:26px;display:grid;gap:10px;align-content:start;border-bottom:1px solid var(--line)}
+.svc div:nth-child(odd){border-right:1px solid var(--line)}
+.svc div:nth-last-child(-n+2){border-bottom:0}
+.svc .code{font:500 .78rem/1 var(--f-mono);color:var(--accent)}
+@media (max-width:760px){.svc{grid-template-columns:minmax(0,1fr)}.svc div:nth-child(odd){border-right:0}.svc div:nth-last-child(2){border-bottom:1px solid var(--line)}}
+
+/* Process */
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;counter-reset:s}
+.steps li{counter-increment:s;display:grid;gap:8px;align-content:start}
+.steps li::before{content:counter(s);font:800 2.4rem/1 var(--f-display);color:var(--accent)}
+@media (max-width:880px){.steps{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:480px){.steps{grid-template-columns:minmax(0,1fr)}}
+
+/* Engineer */
+.eng{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:44px;align-items:center}
+.eng .points{display:grid;gap:18px;margin-top:22px}
+.eng .points p b{display:block;font-family:var(--f-display);font-size:1.05rem;margin-bottom:2px}
+@media (max-width:880px){.eng{grid-template-columns:minmax(0,1fr)}}
+
+/* FAQ */
+.faq{display:grid;gap:0;max-width:820px;border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line);padding-block:18px}
+.faq summary{cursor:pointer;font:700 1.08rem/1.35 var(--f-display);list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";font:400 1.4rem/1 var(--f-mono);color:var(--accent)}
+.faq details[open] summary::after{content:"−"}
+.faq details p{margin-top:10px;color:var(--muted);max-width:65ch}
+
+/* Antet (title block) */
+.antet{border:2px solid var(--ink);background:var(--paper);display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr)}
+.antet .main{padding:32px;display:grid;gap:18px;align-content:start;border-right:2px solid var(--ink)}
+.antet .main .cta{display:flex;flex-wrap:wrap;gap:12px;margin-top:6px}
+.antet .cells{display:grid;grid-template-columns:1fr 1fr}
+.antet .cell{padding:14px 16px;border-bottom:1px solid var(--ink);display:grid;gap:4px;min-width:0}
+.antet .cell:nth-child(odd){border-right:1px solid var(--ink)}
+.antet .cell.full{grid-column:span 2;border-right:0}
+.antet .cell:last-child,.antet .cell.last{border-bottom:0}
+.antet .k{font:500 .68rem/1 var(--f-mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.antet .v{font:600 1rem/1.3 var(--f-body);overflow-wrap:anywhere}
+.antet .v.mono{font-family:var(--f-mono);font-weight:500}
+@media (max-width:820px){.antet{grid-template-columns:minmax(0,1fr)}.antet .main{border-right:0;border-bottom:2px solid var(--ink);padding:24px}}
+
+footer{padding-block:28px 110px;color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between}
+
+/* Mobile sticky CTA */
+.mbar{display:none}
+@media (max-width:760px){
+  .mbar{display:block;position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--paper);border-top:1px solid var(--line);
+    padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+  .mbar .btn{width:100%;justify-content:center}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#ust" aria-label="Kurt 3D Görselleştirme, sayfa başı"><span class="brand-mark">3D</span>KURT 3D</a>
+    <nav aria-label="Sayfa bölümleri">
+      <a class="link" href="#calismalar">Çalışmalar</a>
+      <a class="link" href="#hizmetler">Hizmetler</a>
+      <a class="link" href="#surec">Süreç</a>
+      <a class="btn btn-primary" href="https://ig.me/m/atkurt3d" target="_blank" rel="noopener" data-cta="header">Fiyat sor</a>
+    </nav>
+  </div>
+</header>
+
+<main id="ust">
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="label">Mimari görselleştirme · Türkiye geneli</p>
+        <h1>Projenizi inşaat bitmeden <em>gösterin.</em></h1>
+        <p class="lead">Mimari planınızdan dış cephe ve iç mekân görselleri, drone animasyonu ve 3D kat planı. Satış ofisiniz, ilanlarınız ve sosyal medyanız için.</p>
+        <div class="cta">
+          <a class="btn btn-primary" href="https://ig.me/m/atkurt3d" target="_blank" rel="noopener" data-cta="hero">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 12a8.5 8.5 0 0 1-12.6 7.4L3 21l1.6-5.3A8.5 8.5 0 1 1 21 12z"/></svg>
+            Instagram'dan mesaj gönder
+          </a>
+          <a class="btn btn-ghost" href="#calismalar">Çalışmaları gör</a>
+        </div>
+        <p class="note">DWG · DXF · PDF · el çizimi fotoğrafı kabul edilir</p>
+      </div>
+      <div>
+        <div class="frame">
+          <video src="media/apartman-drone.mp4" poster="media/apartman-gunduz.jpg" autoplay muted loop playsinline preload="metadata" aria-label="Konut projesi 3D drone animasyonu, gündüzden akşama"></video>
+        </div>
+        <p class="dim"><span>Konut projesi · drone animasyonu · gündüz → akşam</span></p>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">Kimler için</p>
+        <h2>Daha bina yokken satış yapmanız gerekiyorsa</h2>
+      </div>
+      <div class="aud">
+        <div><h3>Müteahhitler</h3><p class="muted">Topraktan satışta alıcıya binanın son halini gösterin. Cephe rengini ve malzemesini karar vermeden önce görün.</p></div>
+        <div><h3>Emlak ofisleri</h3><p class="muted">Projeden satılan daireler için ilan görselleri ve kısa tur videoları. Sahibinden, Instagram ve WhatsApp için hazır boyutlar.</p></div>
+        <div><h3>Mimarlar ve ofisler</h3><p class="muted">Müşteri sunumu ve belediye öncesi görsel ihtiyacınız için render desteği. Kendi çiziminiz üzerinden çalışırım.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="calismalar">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">Çalışmalar</p>
+        <h2>Aynı projenin dışı ve içi</h2>
+        <p class="muted">Aşağıdaki görsellerin tamamı plandan modellenip Blender ile hazırlandı.</p>
+      </div>
+      <div class="gal">
+        <figure class="g-wide"><img src="media/apartman-gunduz.jpg" alt="7 katlı konut binası, sokak seviyesinden gündüz görünümü" loading="lazy"><figcaption>Dış cephe · sokak açısı · gündüz</figcaption></figure>
+        <figure class="g-wide"><img src="media/apartman-aksam.jpg" alt="Aynı binanın akşam ışıklarıyla kuş bakışı görünümü" loading="lazy"><figcaption>Dış cephe · kuş bakışı · akşam</figcaption></figure>
+        <figure class="g-third"><img src="media/salon.jpg" alt="Açık plan salon ve yemek alanı" loading="lazy"><figcaption>İç mekân · salon</figcaption></figure>
+        <figure class="g-third"><img src="media/mutfak.jpg" alt="Antrasit dolaplı L mutfak" loading="lazy"><figcaption>İç mekân · mutfak</figcaption></figure>
+        <figure class="g-third"><img src="media/yatak-odasi.jpg" alt="Ebeveyn yatak odası" loading="lazy"><figcaption>İç mekân · yatak odası</figcaption></figure>
+        <figure class="g-wide"><img src="media/banyo.jpg" alt="Duşakabinli banyo" loading="lazy"><figcaption>İç mekân · banyo</figcaption></figure>
+        <figure class="g-wide"><img src="media/kesit-plan.jpg" alt="Çatısı kaldırılmış 3D kat planı, dairenin tüm odaları yukarıdan" loading="lazy"><figcaption>3D kat planı · kesit görünüm</figcaption></figure>
+      </div>
+
+      <div class="tour">
+        <div class="frame">
+          <video src="media/daire-tur.mp4" poster="media/salon.jpg" controls muted playsinline preload="none" aria-label="Daire iç mekân 3D gezinti videosu"></video>
+        </div>
+        <div>
+          <p class="label">Daire turu · 44 sn</p>
+          <h3 style="font-size:1.6rem;margin-top:10px">Alıcı evi gezmeden önce gezsin</h3>
+          <p class="muted" style="margin-top:12px">Koridordan başlayan, salon, mutfak, yatak odaları ve banyodan geçip kat planıyla biten tek parça video.</p>
+          <ul class="muted">
+            <li>Instagram Reels için dikey kesim</li>
+            <li>İlan ve satış ofisi ekranı için yatay kesim</li>
+            <li>İsterseniz logo ve iletişim bilgisi eklenir</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="hizmetler">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">Hizmetler</p>
+        <h2>Neye ihtiyacınız varsa o kadarı</h2>
+        <p class="muted">Fiyat; kat sayısına, görsel adedine ve video süresine göre belirlenir. Planınızı gönderin, net fiyat ve teslim tarihini yazayım.</p>
+      </div>
+      <div class="svc">
+        <div><span class="code">D-01</span><h3>Dış cephe görseli</h3><p class="muted">Bina ve çevresi, gündüz ve akşam ışığında. Cephe malzemesi ve renk alternatifleri yan yana.</p></div>
+        <div><span class="code">İ-02</span><h3>İç mekân görseli</h3><p class="muted">Salon, mutfak, yatak odası ve banyo. Mobilyalı, satışa hazır sunum.</p></div>
+        <div><span class="code">V-03</span><h3>Drone ve tur videosu</h3><p class="muted">Binanın etrafında dolaşan drone animasyonu ve dairenin içinde gezinti. Dikey ve yatay.</p></div>
+        <div><span class="code">P-04</span><h3>3D kat planı</h3><p class="muted">Çatısı açılmış daire. Alıcı odaların yerini ve büyüklüğünü tek bakışta anlar.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="surec">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">Süreç</p>
+        <h2>Plandan teslime dört adım</h2>
+      </div>
+      <ol class="steps">
+        <li><h3>Planı gönderin</h3><p class="muted">Instagram'dan mesaj atın, mimari proje dosyasını ya da çizimin fotoğrafını iletin.</p></li>
+        <li><h3>Fiyat ve tarih</h3><p class="muted">Çizimi inceleyip görsel listesi, fiyat ve teslim tarihini yazarım.</p></li>
+        <li><h3>İlk taslak</h3><p class="muted">Model hazır olunca ilk görselleri gönderirim. Renk ve malzeme düzeltmelerini birlikte yaparız.</p></li>
+        <li><h3>Teslim</h3><p class="muted">Yüksek çözünürlüklü görseller ve videolar, kullanacağınız her mecra için ayrı boyutta.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap eng">
+      <div class="frame"><img src="media/apartman-cephe.jpg" alt="Konut binasının ön cephesi, kat hizaları ve balkonlar" loading="lazy"></div>
+      <div>
+        <p class="label">Hazırlayan</p>
+        <h2 style="margin-top:12px">Çizimi okuyan bir inşaat mühendisi</h2>
+        <div class="points">
+          <p><b>Ölçüye sadık model</b><span class="muted">Kat yükseklikleri, pencere hizaları ve balkon çıkmaları projedeki gibi. Görsel, inşa edilecek binayı gösterir.</span></p>
+          <p><b>Müteahhidin dilini bilirim</b><span class="muted">Görünüş, kesit, vaziyet planı. Ne istediğinizi uzun uzun anlatmanız gerekmez.</span></p>
+          <p><b>Türkiye geneli, online</b><span class="muted">Tüm iş uzaktan yürür. Dosyayı gönderin, görseli alın.</span></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="wrap">
+      <div class="sec-head">
+        <p class="label">Sık sorulanlar</p>
+        <h2>Merak edilenler</h2>
+      </div>
+      <div class="faq">
+        <details open><summary>Elimde sadece kat planı var, yeterli mi?</summary><p>Evet. Görünüş çizimi yoksa cephe tasarımını sizinle birlikte belirleriz. DWG, DXF, PDF ya da kâğıt çizimin net bir fotoğrafı yeterli.</p></details>
+        <details><summary>Ne kadar sürede teslim edersiniz?</summary><p>Süre görsel adedine ve projenin büyüklüğüne göre değişir. Teklifte net teslim tarihini yazarım ve o tarihe göre çalışırım.</p></details>
+        <details><summary>Fiyat neye göre belirleniyor?</summary><p>Blok ve kat sayısı, görsel adedi, video olup olmadığı ve süresi. Planı görmeden fiyat vermiyorum, çünkü her proje farklı.</p></details>
+        <details><summary>Düzeltme yapılıyor mu?</summary><p>Evet. Renk, malzeme ve kamera açısı düzeltmeleri teklife dahildir. Kaç tur düzeltme yapılacağı teklifte yazılı olur.</p></details>
+        <details><summary>Görselleri nerede kullanabilirim?</summary><p>Satış ofisi, ilan siteleri, broşür, reklam ve sosyal medya. Teslim edilen görselleri projeniz için dilediğiniz yerde kullanırsınız.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="block" id="iletisim">
+    <div class="wrap">
+      <div class="antet">
+        <div class="main">
+          <p class="label">İletişim</p>
+          <h2>Planınızı gönderin, fiyatı yazayım.</h2>
+          <p class="muted">Instagram'dan mesaj atmanız yeterli. Mesaja projenin kaç blok ve kaç kat olduğunu, ne kadar görsel istediğinizi yazarsanız daha hızlı dönerim.</p>
+          <div class="cta">
+            <a class="btn btn-primary" href="https://ig.me/m/atkurt3d" target="_blank" rel="noopener" data-cta="contact">Instagram'dan mesaj gönder</a>
+            <a class="btn btn-ghost" href="https://www.instagram.com/atkurt3d/" target="_blank" rel="noopener">Profili gör</a>
+          </div>
+        </div>
+        <div class="cells" aria-label="Proje künyesi">
+          <div class="cell full"><span class="k">Proje</span><span class="v">Sizin projeniz</span></div>
+          <div class="cell"><span class="k">Hazırlayan</span><span class="v">Kurt 3D Görselleştirme</span></div>
+          <div class="cell"><span class="k">Unvan</span><span class="v">İnşaat Mühendisi</span></div>
+          <div class="cell"><span class="k">Instagram</span><span class="v mono">@atkurt3d</span></div>
+          <div class="cell"><span class="k">Hizmet alanı</span><span class="v">Türkiye geneli</span></div>
+          <div class="cell last"><span class="k">Kabul edilen dosya</span><span class="v mono">DWG · DXF · PDF</span></div>
+          <div class="cell last"><span class="k">Pafta</span><span class="v mono">01 / 01</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Kurt 3D Görselleştirme</span>
+    <span>Görseller temsilidir, projeye göre hazırlanır.</span>
+  </div>
+</footer>
+
+<div class="mbar"><a class="btn btn-primary" href="https://ig.me/m/atkurt3d" target="_blank" rel="noopener" data-cta="mobile-bar">Fiyat sor · Instagram'dan yaz</a></div>
+</body>
+</html>
