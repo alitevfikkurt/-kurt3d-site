@@ -366,7 +366,7 @@ names.forEach((n, k) => { const b = document.createElement('button'); b.textCont
 function goFloor(k, keepXZ) {
   k = Math.max(0, Math.min(5, k));
   if (keepXZ && (k === 0 || walk.floor === 0)) keepXZ = false;   // zemin plani farkli: guvenli noktaya git
-  walk.floor = k;
+  walk.floor = k; zCeil.visible = (k === 0);
   [...wfBox.children].forEach((b) => b.classList.toggle('on', +b.dataset.k === k));
   const sp = spawn(k), y = floorY(k) + EYE;
   const from = camera.position.clone();
@@ -376,6 +376,9 @@ function goFloor(k, keepXZ) {
   walk.tween = { from, to, t0: performance.now(), d: keepXZ ? 700 : 1100 };
 }
 const headLight = new THREE.PointLight(0xfff1df, 0, 9, 1.6); scene.add(headLight);
+// zemin kat tavani (yalniz zemin kat gezintisinde; kesitleri etkilemez)
+const zCeil = new THREE.Mesh(new THREE.PlaneGeometry(23.4, 13.4), new THREE.MeshStandardMaterial({ color: 0xefeeea, roughness: 0.9 }));
+zCeil.rotation.x = Math.PI / 2; zCeil.position.y = 4.06; zCeil.visible = false; scene.add(zCeil);
 function enterWalk() {
   controls.enabled = false; controls.autoRotate = false; spin.classList.remove('on');
   camera.fov = 68; camera.updateProjectionMatrix();
@@ -395,7 +398,7 @@ function exitWalk() {
   document.body.classList.remove('walking'); document.getElementById('help').classList.add('hide');
   document.getElementById('pad').classList.add('hide'); document.getElementById('cross').classList.add('hide');
   document.getElementById('hint').classList.remove('hide');
-  keys.clear(); walk.tween = null;
+  keys.clear(); walk.tween = null; zCeil.visible = false;
 }
 // klavye
 const KEYMAP = { ArrowUp: 'f', KeyW: 'f', ArrowDown: 'b', KeyS: 'b', ArrowLeft: 'tl', ArrowRight: 'tr', KeyA: 'sl', KeyD: 'sr', ShiftLeft: 'run', ShiftRight: 'run' };
